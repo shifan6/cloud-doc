@@ -1,21 +1,23 @@
 /* eslint-disable no-unused-vars */
 import './App.css'
-import React, { useState } from 'react'
+import React, { useState, useEffect } from 'react'
 import { faPlus, faFileImport, faSave } from '@fortawesome/free-solid-svg-icons'
 import 'bootstrap/dist/css/bootstrap.min.css'
 import SimpleMDE from 'react-simplemde-editor'
 import 'easymde/dist/easymde.min.css'
 import { v4 as uuidv4 } from 'uuid'
-import { objToArray } from './utils/helper'
+import { objToArray, arrayToObj } from './utils/helper'
 import fileHelper from './utils/fileHelper'
+import useIpcRenderer from './hooks/useIpcRenderer'
 
 import FileSearch from './components/FileSearch'
 import FileList from './components/FileList'
 import BottomBtn from './components/BottomBtn'
 import TabList from './components/TabList'
 
-const { join } = window.require('path')
-const { app } = window.require('@electron/remote')
+const { join, basename, dirname, extname } = window.require('path')
+const { app, dialog } = window.require('@electron/remote')
+const { ipcRenderer } = window.require('electron')
 const Store = window.require('electron-store')
 const fileStore = new Store({ name: 'Files Data' })
 
@@ -83,7 +85,7 @@ function App() {
   }
 
   const updateFileTitle = (fileId, value, isNew) => {
-    const newPath = join(savedLocation, `${value}.md`)
+    const newPath = isNew ? join(savedLocation, `${value}.md`) : join(dirname(files[fileId].path), `${value}.md`)
     const modefiedFile = { ...files[fileId], title: value, path: newPath, isNew: false }
     const newFiles = { ...files, [fileId]: modefiedFile } 
     if (isNew) {
@@ -102,6 +104,8 @@ function App() {
   }
 
   const saveCurrentFile = () => {
+    console.log(activeFile)
+    if (!activeFile) { return }
     fileHelper.writeFile(activeFile.path, activeFile.body).then(() => {
       setUnsaveFileIds(unsavedFileIds.filter(id => id !== activeFileId))
     })
@@ -134,6 +138,45 @@ function App() {
     })
   }
 
+  const importFiles = () => {
+    dialog.showOpenDialog({
+      title: '选择 Markdown 文件',
+      properties: ['openFile', 'multiSelections'],
+      filters: [
+        {
+          name: 'Markdown File',
+          extensions: ['md']
+        }
+      ]
+    }).then(({ filePaths }) => {
+      const filteredPaths = filePaths.filter(path => {
+        const alreadyAdded = Object.values(files).find(file => file.path === path)
+        return !alreadyAdded
+      })
+
+      const importedFilesArr = filteredPaths.map(path => {
+        return {
+          id: uuidv4(),
+          title: basename(path, extname(path)),
+          path
+        }
+      })
+
+      const newFiles = { ...files, ...arrayToObj(importedFilesArr)}
+      setFiles(newFiles)
+      saveFilesToStore(newFiles)
+
+      const fileCount = importedFilesArr.length
+      if (fileCount > 0) {
+        dialog.showMessageBox({
+          type: 'info',
+          title: `成功导入了${fileCount}个文件`,
+          message: `成功导入了${fileCount}个文件`
+        })
+      }
+    })
+  }
+
   const clickTab = (fileId) => {
     setActiveFileId(fileId) 
   }
@@ -146,6 +189,12 @@ function App() {
       setActiveFileId(prevActiveFileId)
     }
   }
+
+  useIpcRenderer({
+    'create-new-file': createNewFile,
+    'import-file': importFiles,
+    'save-edit-file': saveCurrentFile
+  })
   
   return (
     <div className='App container-fluid px-0'>
@@ -175,7 +224,7 @@ function App() {
                 text="导入"
                 icon={ faFileImport }
                 btnClass="btn-success"
-                onBtnClick={() => { console.log('click 导入') }}
+                onBtnClick={ importFiles }
               />
             </div>
           </div>
@@ -205,13 +254,7 @@ function App() {
                   {
                     minHeight: '400px'
                   }
-                }
-              />
-                <BottomBtn
-                text="保存"
-                icon={ faSave }
-                btnClass="btn-success"
-                onBtnClick={ saveCurrentFile }
+                } 
               />
             </>
           }
