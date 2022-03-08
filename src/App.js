@@ -45,7 +45,7 @@ function App() {
   const renderedFileList = searchedKeyword ? filesArr.filter(file => file.title.includes(searchedKeyword)) : filesArr
   const activeFile = files[activeFileId]
   const openedFiles = openedFileIds.map(openedFileId => files[openedFileId])
-  const savedLocation = settingsStore.get('savedFileLocation') || app.getPath('documents')
+  const savedFileLocation = settingsStore.get('savedFileLocation') || app.getPath('documents')
   
   const searchFile = (keyword) => {
     setSearchedKeyword(keyword)
@@ -85,7 +85,7 @@ function App() {
   }
 
   const updateFileTitle = (fileId, value, isNew) => {
-    const newPath = isNew ? join(savedLocation, `${value}.md`) : join(dirname(files[fileId].path), `${value}.md`)
+    const newPath = isNew ? join(savedFileLocation, `${value}.md`) : join(dirname(files[fileId].path), `${value}.md`)
     const modefiedFile = { ...files[fileId], title: value, path: newPath, isNew: false }
     const newFiles = { ...files, [fileId]: modefiedFile } 
     if (isNew) {
