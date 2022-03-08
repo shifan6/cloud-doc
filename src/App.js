@@ -1,7 +1,7 @@
 /* eslint-disable no-unused-vars */
 import './App.css'
-import React, { useState, useEffect } from 'react'
-import { faPlus, faFileImport, faSave } from '@fortawesome/free-solid-svg-icons'
+import React, { useState } from 'react'
+import { faPlus, faFileImport } from '@fortawesome/free-solid-svg-icons'
 import 'bootstrap/dist/css/bootstrap.min.css'
 import SimpleMDE from 'react-simplemde-editor'
 import 'easymde/dist/easymde.min.css'
@@ -17,9 +17,9 @@ import TabList from './components/TabList'
 
 const { join, basename, dirname, extname } = window.require('path')
 const { app, dialog } = window.require('@electron/remote')
-const { ipcRenderer } = window.require('electron')
 const Store = window.require('electron-store')
 const fileStore = new Store({ name: 'Files Data' })
+const settingsStore = new Store({ name: 'settings' })
 
 const saveFilesToStore = (files) => {
   const filesStoreObj = objToArray(files).reduce((result, file) => {
@@ -45,7 +45,7 @@ function App() {
   const renderedFileList = searchedKeyword ? filesArr.filter(file => file.title.includes(searchedKeyword)) : filesArr
   const activeFile = files[activeFileId]
   const openedFiles = openedFileIds.map(openedFileId => files[openedFileId])
-  const savedLocation = app.getPath('documents')
+  const savedLocation = settingsStore.get('savedFileLocation') || app.getPath('documents')
   
   const searchFile = (keyword) => {
     setSearchedKeyword(keyword)
