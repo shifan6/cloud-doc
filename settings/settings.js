@@ -17,8 +17,8 @@ document.addEventListener('DOMContentLoaded', () => {
     dialog.showOpenDialog({
       title: '选择文件存放路径',
       properties: ['openDirectory']
-    }).then(({ filePaths }) => {
-      if (Array.isArray(filePaths)) {
+    }).then(({ filePaths, canceled }) => {
+      if (!canceled && Array.isArray(filePaths) && filePaths.length) {
         $('savedFileLocation').value = filePaths[0]
         savedFileLocation = filePaths[0]
       }

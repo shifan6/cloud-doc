@@ -19,7 +19,6 @@ const FileList = ({ files, onFileClick, onSaveEdit, onFileDelete}) => {
       click: () => {
         const parentElement = getParentNode(clickedItem.current, 'file-item')
         if (parentElement) {
-          console.log(parentElement)
           onFileClick(parentElement.dataset.id)
         }
       }

@@ -104,7 +104,6 @@ function App() {
   }
 
   const saveCurrentFile = () => {
-    console.log(activeFile)
     if (!activeFile) { return }
     fileHelper.writeFile(activeFile.path, activeFile.body).then(() => {
       setUnsaveFileIds(unsavedFileIds.filter(id => id !== activeFileId))

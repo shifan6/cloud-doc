@@ -3,33 +3,89 @@
   "version": "0.1.0",
   "main": "main.js",
   "private": true,
+  "author": {
+    "name": "Shi Fan",
+    "email": "qys9309@qq.com"
+  },
   "dependencies": {
-    "@electron/remote": "^2.0.1",
-    "@fortawesome/fontawesome-svg-core": "^1.2.36",
-    "@fortawesome/free-brands-svg-icons": "^5.15.4",
-    "@fortawesome/free-solid-svg-icons": "^5.15.4",
-    "@fortawesome/react-fontawesome": "^0.1.16",
-    "@testing-library/jest-dom": "^5.16.1",
-    "@testing-library/react": "^12.1.2",
-    "@testing-library/user-event": "^13.5.0",
     "bootstrap": "^5.1.3",
-    "classnames": "^2.3.1",
-    "easymde": "^2.15.0",
+    "electron-is-dev": "^2.0.0",
     "electron-store": "^8.0.1",
-    "node-sass": "^7.0.1",
-    "react": "^17.0.2",
-    "react-dom": "^17.0.2",
-    "react-scripts": "5.0.0",
-    "react-simplemde-editor": "^4.1.0",
-    "uuid": "^8.3.2",
-    "web-vitals": "^2.1.2"
+    "@electron/remote": "^2.0.1"
   },
   "scripts": {
     "start": "react-scripts start",
     "build": "react-scripts build",
     "test": "react-scripts test",
     "eject": "react-scripts eject",
-    "dev": "concurrently \"wait-on http://localhost:3000 && electron . \" \"cross-env BROWSER=none npm start\""
+    "buildMain": "webpack",
+    "dev": "concurrently \"wait-on http://localhost:3000 && electron . \" \"cross-env BROWSER=none npm start\"",
+    "pack": "electron-builder --dir",
+    "dist": "electron-builder",
+    "release": "cross-env GH_TOKEN=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 electron-builder",
+    "prerelease": "npm run build && npm run buildMain",
+    "prepack": "npm run build && npm run buildMain",
+    "predist": "npm run build && npm run buildMain"
+  },
+  "homepage": "./",
+  "build": {
+    "appId": "cloud-doc",
+    "productName": "云文档",
+    "copyright": "CopyRight ©️ 2022 ${author}",
+    "files": [
+      "build/**/*",
+      "node_modules/**/*",
+      "settings/**/*",
+      "package.json"
+    ],
+    "extraMetadata": {
+      "main": "./build/main.js"
+    },
+    "directories": {
+      "buildResources": "assets"
+    },
+    "publish": ["github"],
+    "extends": null,
+    "mac": {
+      "category": "public.app-category.productivity",
+      "artifactName": "${productName}-${version}-${arch}.${ext}"
+    },
+    "dmg": {
+      "background": "assets/appdmg.png",
+      "icon": "assets/icon.icns",
+      "iconSize": 100,
+      "contents": [
+        {
+          "x": 380,
+          "y": 280,
+          "type": "link",
+          "path": "/Applications"
+        },
+        {
+          "x": 110,
+          "y": 280,
+          "type": "file"
+        }
+      ],
+      "window": {
+        "width": 500,
+        "height": 500
+      }
+    },
+    "win": {
+      "target": [
+        "msi",
+        "nsis"
+      ],
+      "icon": "assets/icon.ico",
+      "artifactName": "${productName}-Web-Setup-${version}.${ext}",
+      "publisherName": "Shi Fan"
+    },
+    "nsis": {
+      "allowToChangeInstallationDirectory": true,
+      "oneClick": false,
+      "perMachine": false
+    }
   },
   "eslintConfig": {
     "extends": [
@@ -50,10 +106,27 @@
     ]
   },
   "devDependencies": {
+    "@fortawesome/fontawesome-svg-core": "^1.2.36",
+    "@fortawesome/free-brands-svg-icons": "^5.15.4",
+    "@fortawesome/free-solid-svg-icons": "^5.15.4",
+    "@fortawesome/react-fontawesome": "^0.1.16",
+    "@testing-library/jest-dom": "^5.16.1",
+    "@testing-library/react": "^12.1.2",
+    "@testing-library/user-event": "^13.5.0",
+    "classnames": "^2.3.1",
     "concurrently": "^6.5.1",
     "cross-env": "^7.0.3",
+    "easymde": "^2.15.0",
     "electron": "^16.0.5",
-    "electron-is-dev": "^2.0.0",
-    "wait-on": "^6.0.0"
+    "electron-builder": "^22.14.13",
+    "node-sass": "^7.0.1",
+    "react": "^17.0.2",
+    "react-dom": "^17.0.2",
+    "react-scripts": "5.0.0",
+    "react-simplemde-editor": "^4.1.0",
+    "uuid": "^8.3.2",
+    "wait-on": "^6.0.0",
+    "web-vitals": "^2.1.2",
+    "webpack-cli": "^4.9.2"
   }
 }

@@ -1,6 +1,7 @@
 const { app, Menu, ipcMain } = require('electron')
 const Store = require('electron-store')
 const isDev = require('electron-is-dev')
+const path = require('path')
 const menuTemplate = require('./src/menuTemplate')
 const AppWindow = require('./src/AppWindow')
 const { join } = require('path')
@@ -11,7 +12,7 @@ app.on('ready', () => {
     width: 1024,
     height: 680
   }
-  const urlLocation = isDev ? 'http://localhost:3000' : 'dumnurl'
+  const urlLocation = isDev ? 'http://localhost:3000' : `file://${path.join(__dirname, './index.html')}`
   mainWindow = new AppWindow(mainWindowConfig, urlLocation)
   mainWindow.on('closed', () => {
     mainWindow = null
